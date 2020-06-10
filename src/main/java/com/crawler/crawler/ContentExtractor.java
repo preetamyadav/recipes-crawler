@@ -1,11 +1,14 @@
 package com.crawler.crawler;
 
 import com.crawler.crawler.model.Recipe;
+import com.crawler.crawler.model.mongo.RecipeRepository;
 import com.google.gson.Gson;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 
 import java.io.FileWriter;
@@ -15,6 +18,12 @@ import java.util.*;
 
 @Component
 public class ContentExtractor {
+
+
+
+    @Autowired
+    private  RecipeRepository recipeRepository;
+
     private String websiteUrl;
 
     public String getWebsiteUrl() {
@@ -73,11 +82,37 @@ public class ContentExtractor {
                     Recipe recipe = new Recipe();
                     recipe.setName(singleLinks.getKey());
                     recipe.setAbout(document.getElementsByClass("recipe_description").text());
-                    Elements elements2 = document.getElementsByClass("recipe_peocess");
-                    for (Element element : elements2) {
-                        recipe.setSteps(element.getElementsByClass("stylNew").text());
-                        recipe.setIngredients(element.getElementsByClass("ingredients").text());
+
+                    Elements element1s  = document.getElementsByClass("stylNew");
+                    List<String> steps = new ArrayList<>();
+                    for(Element elements1 : element1s){
+                        Elements content  = elements1.getElementsByTag("ul");
+                        for(Element element : content){
+                            Elements liContent = element.getElementsByTag("li");
+                            for(Element element1 : liContent){
+                                steps.add(element1.text());
+                            }
+
+                        }
                     }
+                    recipe.setSteps(steps);
+                    List<String> ingredients = new ArrayList<>();
+                    Elements elements2 = document.getElementsByClass("ingredients");
+                    for(Element elements1 : elements2){
+                        Elements content  = elements1.getElementsByTag("ul");
+                        for(Element element : content){
+                            Elements liContent = element.getElementsByTag("li");
+                            for(Element element1 : liContent){
+                                ingredients.add(element1.text());
+                            }
+
+                        }
+                    }
+                    recipe.setIngredients(ingredients);
+             //       System.out.println(ingredients);
+//                    for (Element element : elements2) {
+//                        recipe.setIngredients(element.getElementsByClass("ingredients").text());
+//                    }
 
                     Elements elements = document.getElementsByClass("recipe-details");
                     for (Element element : elements) {
@@ -98,7 +133,9 @@ public class ContentExtractor {
                         }
                     }
                     System.out.println(new Gson().toJson(recipe));
-                    allRecipe.add(recipe);
+
+                    recipeRepository.save(recipe);
+//                    allRecipe.add(recipe);
                 }catch (IOException exception){
                     exception.printStackTrace();
                 }

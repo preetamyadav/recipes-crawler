@@ -1,8 +1,15 @@
 package com.crawler.crawler.model;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.stereotype.Component;
+
 import java.util.List;
 
 public class Recipe {
+
+    @Id
+    public String id;
 
     private String name;
     private String about;
@@ -10,8 +17,8 @@ public class Recipe {
     private String prepTime;
     private String cookingTime;
     private String difficultLevel;
-    private String ingredients;
-    private String steps;
+    private List<String> ingredients;
+    private List<String> steps;
 
     public String getName() {
         return name;
@@ -61,19 +68,19 @@ public class Recipe {
         this.difficultLevel = difficultLevel;
     }
 
-    public String getIngredients() {
+    public List<String> getIngredients() {
         return ingredients;
     }
 
-    public void setIngredients(String ingredients) {
+    public void setIngredients(List<String> ingredients) {
         this.ingredients = ingredients;
     }
 
-    public String getSteps() {
+    public List<String> getSteps() {
         return steps;
     }
 
-    public void setSteps(String steps) {
+    public void setSteps(List<String> steps) {
         this.steps = steps;
     }
 }
